@@ -1,5 +1,7 @@
 extern crate i2cdev;
 
+use std::time::Duration;
+
 use i2cdev::core::I2CDevice;
 use i2cdev::linux::LinuxI2CDevice;
 
@@ -15,7 +17,7 @@ const LED_ADDRESSES : [u8; 16] = [
       0x16, 0x1B, 0x11, 0x10,
       0x0E, 0x0D, 0x0C, 0x02];
 
-fn turn_on_light(dev: &LinuxI2CDevice, i:usize) {
+fn turn_on_light(dev: &mut LinuxI2CDevice, i:usize) {
     let led_addr = LED_ADDRESSES[i];
     let mut data:[u16; 8] = [0; 8];
     data[(led_addr >> 4) as usize] |= 1 << (led_addr & 0x0F);
@@ -57,9 +59,9 @@ fn main() {
     i2cdev.smbus_process_block(0xA1, &empty_array).unwrap();
     println!("Interrupt turned on");
 
-    turn_on_light(&i2cdev, 0);
-    turn_on_light(&i2cdev, 1);
+    turn_on_light(&mut i2cdev, 0);
+    turn_on_light(&mut i2cdev, 1);
 
     println!("Waiting a moment");
-    std::thread::sleep_ms(1000);
+    std::thread::sleep(Duration::from_millis(1000));
 }

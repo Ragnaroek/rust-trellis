@@ -3,5 +3,8 @@ name = "trellis_demo"
 version = "0.0.1"
 authors = [ "Your name <you@example.com>" ]
 
+[lib]
+name = "trellis"
+
 [dependencies]
 i2cdev = "0.3.0"
