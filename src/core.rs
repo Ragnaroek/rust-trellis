@@ -3,8 +3,8 @@ extern crate i2cdev;
 use self::i2cdev::core::I2CDevice;
 use self::i2cdev::linux::LinuxI2CDevice;
 
-pub struct Trellis<'a> {
-    i2c_device : &'a LinuxI2CDevice,
+pub struct Trellis {
+    i2c_device : LinuxI2CDevice,
     display_buffer: [bool; 16]
 }
 
@@ -16,10 +16,10 @@ static LED_ADDRESSES : [u8; 16] = [
       0x16, 0x1B, 0x11, 0x10,
       0x0E, 0x0D, 0x0C, 0x02];
 
-impl<'a> Trellis<'a> {
+impl Trellis {
 
     //TODO Pass in device instead of hard coding device information
-    pub fn new() -> Trellis<'a> {
+    pub fn new() -> Trellis {
         let device = "/dev/i2c-1"; // I2C-Bus 1
 
         let empty_array:[u8;0] = [];
@@ -37,7 +37,7 @@ impl<'a> Trellis<'a> {
         i2cdev.smbus_process_block(0xA1, &empty_array).unwrap();
         println!("Interrupt turned on");
 
-        return Trellis { display_buffer: [false; 16], i2c_device: &i2cdev};
+        return Trellis { display_buffer: [false; 16], i2c_device: i2cdev};
     }
 
     pub fn set_led(&mut self, led: u8) {
