@@ -1,5 +1,4 @@
-extern crate i2cdev;
+#![crate_name = "trellis"]
+#![crate_type = "lib"]
 
-struct Trellis {
-    display_buffer: [bool; 16]
-}
+pub mod core;
