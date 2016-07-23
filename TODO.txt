@@ -1,0 +1,3 @@
+
+# give device to trellis (with raspberry impl)
+# read buttons 

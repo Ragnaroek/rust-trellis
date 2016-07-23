@@ -1,7 +1,10 @@
 [package]
-name = "trellis_demo"
-version = "0.0.1"
-authors = [ "Your name <you@example.com>" ]
+name = "trellis"
+version = "0.1.0"
+authors = [ "Michael Bohn <spaceodyssey@gmx.de>" ]
+description = "Rust library to talk with the Adafruit Trellis"
+license = "GPL-3.0"
+repository = "https://github.com/Ragnaroek/rust-trellis"
 
 [lib]
 name = "trellis"
