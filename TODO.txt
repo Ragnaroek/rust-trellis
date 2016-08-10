@@ -1,3 +1,4 @@
 
+# add tests for code
 # give device to trellis (with raspberry impl)
-# read buttons 
+# read buttons
