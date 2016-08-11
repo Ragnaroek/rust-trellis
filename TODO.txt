@@ -1,4 +1,7 @@
 
 # add tests for code
+### impl. a device abstraction with mock for testing!!
+### 
+
 # give device to trellis (with raspberry impl)
 # read buttons

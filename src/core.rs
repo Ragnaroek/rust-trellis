@@ -1,7 +1,6 @@
 extern crate i2cdev;
 
-use self::i2cdev::core::I2CDevice;
-use self::i2cdev::linux::LinuxI2CDevice;
+use super::devices::I2CMasterDevice;
 
 pub const DEFAULT_TRELLIS_ADDR: u16 = 0x70;
 
@@ -12,11 +11,6 @@ static LED_ADDRESSES : [u8; NUM_LEDS] = [
       0x28, 0x29, 0x23, 0x24,
       0x16, 0x1B, 0x11, 0x10,
       0x0E, 0x0D, 0x0C, 0x02];
-
-pub struct Trellis {
-    i2c_device : LinuxI2CDevice,
-    display_buffer: [bool; NUM_LEDS]
-}
 
 pub enum Col {
     A, B, C, D
@@ -43,29 +37,42 @@ fn col_to_num(col: Col) -> u8 {
     }
 }
 
+fn led_index(col:Col, row:Row) -> usize {
+    return (row_to_num(row)*4 + col_to_num(col)) as usize;
+}
+
+pub struct Trellis {
+    display_buffer: [bool; NUM_LEDS],
+    device : Box<I2CMasterDevice>
+}
+
 impl Trellis {
 
-    pub fn new() -> Trellis {
-        let device = "/dev/i2c-1"; // I2C-Bus 1
+    pub fn new(dev: Box<I2CMasterDevice>) -> Trellis {
+        return Trellis { display_buffer: [false; 16], device: dev};
+    }
 
+    pub fn init(&mut self) {
         let empty_array:[u8;0] = [];
-
-        let mut i2cdev = LinuxI2CDevice::new(device, DEFAULT_TRELLIS_ADDR).unwrap();
-        // turn oscillator on
-        i2cdev.smbus_process_block(0x21, &empty_array).unwrap();
+        self.device.write_block(0x21, &empty_array).unwrap();
         // set blink off
-        i2cdev.smbus_process_block(0x80 | 0x01 | 0 << 1, &empty_array).unwrap();
+        self.device.write_block(0x80 | 0x01 | 0 << 1, &empty_array).unwrap();
         //set brightness to max
-        i2cdev.smbus_process_block(0xE0 | 15, &empty_array).unwrap();
+        self.device.write_block(0xE0 | 15, &empty_array).unwrap();
         //turn interrupt on
-        i2cdev.smbus_process_block(0xA1, &empty_array).unwrap();
-
-        return Trellis { display_buffer: [false; 16], i2c_device: i2cdev};
+        self.device.write_block(0xA1, &empty_array).unwrap();
     }
 
     pub fn set_led(&mut self, col:Col, row: Row) {
-        let led = row_to_num(row)*4 + col_to_num(col);
-        self.display_buffer[led as usize] = true;
+        self.display_buffer[led_index(col, row)] = true;
+    }
+
+    pub fn clear_led(&mut self, col:Col, row:Row) {
+        self.display_buffer[led_index(col, row)] = false;
+    }
+
+    pub fn is_led_set(&mut self, col:Col, row: Row) -> bool {
+        return self.display_buffer[led_index(col, row)];
     }
 
     pub fn write_display(&mut self) {
@@ -85,6 +92,6 @@ impl Trellis {
             w[i*2+1] = (data[i] >> 8) as u8;
         }
 
-        self.i2c_device.smbus_process_block(0x0, &w).unwrap();
+        self.device.write_block(0x0, &w).unwrap();
     }
 }
