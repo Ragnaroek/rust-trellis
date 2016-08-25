@@ -15,7 +15,7 @@ use std::result;
  */
 pub trait I2CMasterDevice {
     fn write_block(&mut self, register: u8, values: &[u8]) -> Result<()>;
-    fn read_block(&mut self, register: u8) -> Result<Vec<u8>>;
+    fn read_block(&mut self, register: u8, len: u8) -> Result<Vec<u8>>;
 }
 
 
@@ -37,8 +37,9 @@ impl I2CMasterDevice for RaspberryPiBPlus {
         return convert_to_io_error(result);
     }
 
-    fn read_block(&mut self, register: u8) -> Result<Vec<u8>> {
-        let result = self.i2c_device.smbus_read_block_data(register);
+    fn read_block(&mut self, register: u8, len: u8) -> Result<Vec<u8>> {
+        let result = self.i2c_device.smbus_read_i2c_block_data(register, len);
+        println!("raw data {:?}", result);
         return convert_to_io_error(result);
     }
 }

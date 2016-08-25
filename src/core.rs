@@ -1,23 +1,63 @@
 extern crate i2cdev;
 
+use std;
+use std::time::Duration;
 use super::devices::I2CMasterDevice;
 
 pub const DEFAULT_TRELLIS_ADDR: u16 = 0x70;
 
 const NUM_LEDS: usize = 16;
 
+type LedVec = [bool; NUM_LEDS];
+
 static LED_ADDRESSES : [u8; NUM_LEDS] = [
       0x3A, 0x37, 0x35, 0x34,
       0x28, 0x29, 0x23, 0x24,
       0x16, 0x1B, 0x11, 0x10,
-      0x0E, 0x0D, 0x0C, 0x02];
+      0x0E, 0x0D, 0x0C, 0x02
+];
 
+static BUTTON_ADDRESSES : [u8; NUM_LEDS] = [
+      0x07, 0x04, 0x02, 0x22,
+      0x05, 0x06, 0x00, 0x01,
+      0x03, 0x10, 0x30, 0x21,
+      0x13, 0x12, 0x11, 0x31
+];
+
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub enum Col {
     A, B, C, D
 }
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub enum Row {
     R0, R1, R2, R3
 }
+
+ #[derive(PartialEq, Debug, Copy, Clone)]
+pub struct LedButton {
+    pub col: Col,
+    pub row: Row
+}
+
+/*
+ * Describes a button event that occurred.
+ * At the moment only button press
+ * is implemented.
+ */
+ #[derive(Debug)]
+pub struct ButtonEvent {
+    pub buttons_pressed: Vec<LedButton>
+}
+
+impl ButtonEvent {
+    pub fn empty() -> ButtonEvent {
+        return ButtonEvent{buttons_pressed: vec![]}
+    }
+}
+
+pub type EventLoopHandler = Box<FnMut(&mut Trellis, ButtonEvent) -> bool>;
+
+// Helper methods
 
 fn row_to_num(row: Row) -> u8 {
     match row {
@@ -28,28 +68,78 @@ fn row_to_num(row: Row) -> u8 {
     }
 }
 
+fn num_to_row(num: usize) -> Row {
+    match num {
+        0 => Row::R0,
+        1 => Row::R1,
+        2 => Row::R2,
+        3 => Row::R3,
+        _ => panic!("illegal row")
+    }
+}
+
 fn col_to_num(col: Col) -> u8 {
     match col {
         Col::A => 0,
         Col::B => 1,
         Col::C => 2,
-        Col::D => 3
+        Col::D => 3,
     }
+}
+
+fn num_to_col(num: usize) -> Col {
+    match num {
+        0 => Col::A,
+        1 => Col::B,
+        2 => Col::C,
+        3 => Col::D,
+        _ => panic!("illegal column")
+    }
+}
+
+fn num_to_led_button(num: usize) -> LedButton {
+    let col_num = num % 4;
+    let row_num = num / 4;
+    return LedButton{col: num_to_col(col_num), row: num_to_row(row_num)};
 }
 
 fn led_index(col:Col, row:Row) -> usize {
     return (row_to_num(row)*4 + col_to_num(col)) as usize;
 }
 
+fn to_button_state(dev_data: Vec<u8>) -> LedVec {
+    let mut result = [false; NUM_LEDS];
+    for i in 0..NUM_LEDS {
+        let addr = BUTTON_ADDRESSES[i];
+        result[i] = (dev_data[(addr >> 4) as usize] & (1 << (addr & 0x0F))) > 0;
+    }
+    return result;
+}
+
+fn button_event(old: LedVec, new: LedVec) -> ButtonEvent {
+    let mut pressed = Vec::new();
+    for i in 0..NUM_LEDS {
+        if new[i] && !old[i] {
+            pressed.push(num_to_led_button(i));
+        }
+    }
+    return ButtonEvent{buttons_pressed:pressed};
+}
+
+// Trellis impl
+
 pub struct Trellis {
-    display_buffer: [bool; NUM_LEDS],
+    display_buffer: LedVec,
+    button_state: LedVec,
     device : Box<I2CMasterDevice>
 }
 
 impl Trellis {
 
     pub fn new(dev: Box<I2CMasterDevice>) -> Trellis {
-        return Trellis { display_buffer: [false; 16], device: dev};
+        return Trellis { display_buffer: [false; NUM_LEDS],
+                         button_state: [false; NUM_LEDS],
+                         device: dev};
     }
 
     pub fn init(&mut self) {
@@ -95,10 +185,21 @@ impl Trellis {
         self.device.write_block(0x0, &w).unwrap();
     }
 
-    pub fn read_switches_test(&mut self) {
-        let result = self.device.read_block(0x40).unwrap();
-        if result.len() > 0 {
-            println!("detected key press {:?}", result);
+    /* Start the button read event loop. This function does not terminate and can
+     * only be stopped by the supplied event handler.
+     */
+    pub fn button_evt_loop(&mut self, mut hnd: EventLoopHandler) {
+        loop {
+            let new_button_state = to_button_state(self.device.read_block(0x40, 6).unwrap());
+            let event = button_event(self.button_state, new_button_state);
+
+            self.button_state = new_button_state;
+
+            let handler_result = hnd(self, event);
+            if handler_result {
+                break;
+            }
+            std::thread::sleep(Duration::from_millis(30));
         }
     }
 }

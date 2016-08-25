@@ -1,6 +1,6 @@
 [package]
 name = "trellis"
-version = "0.1.0"
+version = "0.2.0"
 authors = [ "Michael Bohn <spaceodyssey@gmx.de>" ]
 description = "Rust library to talk with the Adafruit Trellis"
 license = "GPL-3.0"
@@ -10,4 +10,4 @@ repository = "https://github.com/Ragnaroek/rust-trellis"
 name = "trellis"
 
 [dependencies]
-i2cdev = "0.3.0"
+i2cdev = "0.3.1"

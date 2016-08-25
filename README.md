@@ -2,3 +2,10 @@
 
 # rust-trellis
 a rust interface for the adafruit trellis
+
+Addressing layout
+
+[(A,R0),....]
+[...........]----- 
+[...........]----- (cables)
+[.....(D,R3)]  
