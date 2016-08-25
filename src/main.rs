@@ -18,5 +18,16 @@ fn main() {
     trellis.set_led(Col::D, Row::R3);
     trellis.write_display();
 
-    std::thread::sleep(Duration::from_millis(1000));
+    let mut reads = 0;
+    loop {
+        trellis.read_switches_test();
+        reads = reads+1;
+        std::thread::sleep(Duration::from_millis(100));
+        if reads == 600 {
+            println!("Ending");
+            break;
+        }
+    }
+
+
 }

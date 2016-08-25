@@ -2,8 +2,10 @@ extern crate i2cdev;
 
 use self::i2cdev::core::I2CDevice;
 use self::i2cdev::linux::LinuxI2CDevice;
+use self::i2cdev::linux::LinuxI2CError;
 use std::io::Result;
 use std::io;
+use std::result;
 
 /*
  * Host devices that are connected to the Trellis.
@@ -13,6 +15,7 @@ use std::io;
  */
 pub trait I2CMasterDevice {
     fn write_block(&mut self, register: u8, values: &[u8]) -> Result<()>;
+    fn read_block(&mut self, register: u8) -> Result<Vec<u8>>;
 }
 
 
@@ -31,11 +34,20 @@ impl RaspberryPiBPlus {
 impl I2CMasterDevice for RaspberryPiBPlus {
     fn write_block(&mut self, register: u8, values: &[u8]) -> Result<()> {
         let result = self.i2c_device.smbus_process_block(register, values);
-        match result {
-            Ok(o) => Ok(o),
-            Err(e) => Err(io::Error::from(e))
-        }
+        return convert_to_io_error(result);
+    }
+
+    fn read_block(&mut self, register: u8) -> Result<Vec<u8>> {
+        let result = self.i2c_device.smbus_read_block_data(register);
+        return convert_to_io_error(result);
     }
 }
 
-// END RaspberryPiBPlus
+// END Raspberry Pi B+
+
+fn convert_to_io_error<T>(result: result::Result<T, LinuxI2CError>) -> Result<T> {
+    match result {
+        Ok(o) => Ok(o),
+        Err(e) => Err(io::Error::from(e))
+    }
+}

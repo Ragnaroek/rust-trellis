@@ -23,4 +23,9 @@ impl I2CMasterDevice for MockDevice {
         self.write_block_counter += 1;
         return Ok(());
     }
+
+    fn read_block(&mut self, _register: u8) -> Result<Vec<u8>> {
+        // TODO impl callback
+        return Ok(Vec::new());
+    }
 }

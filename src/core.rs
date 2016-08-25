@@ -94,4 +94,11 @@ impl Trellis {
 
         self.device.write_block(0x0, &w).unwrap();
     }
+
+    pub fn read_switches_test(&mut self) {
+        let result = self.device.read_block(0x40).unwrap();
+        if result.len() > 0 {
+            println!("detected key press {:?}", result);
+        }
+    }
 }
