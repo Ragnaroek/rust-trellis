@@ -4,8 +4,6 @@ use std;
 use std::time::Duration;
 use super::devices::I2CMasterDevice;
 
-pub const DEFAULT_TRELLIS_ADDR: u16 = 0x70;
-
 const NUM_LEDS: usize = 16;
 
 type LedVec = [bool; NUM_LEDS];
@@ -24,37 +22,48 @@ static BUTTON_ADDRESSES : [u8; NUM_LEDS] = [
       0x13, 0x12, 0x11, 0x31
 ];
 
+/// A column in the trellis grid.
+/// See the project readme for a scheme of the trellis orientation.
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum Col {
     A, B, C, D
 }
+
+/// A row in the trellis grid.
+/// See the project readme for a scheme of the trellis orientation.
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub enum Row {
     R0, R1, R2, R3
 }
 
- #[derive(PartialEq, Debug, Copy, Clone)]
+/// A particular button and LED combination in the grid.
+/// Inconsistently used in the trellis implementation
+/// at the moment.
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub struct LedButton {
     pub col: Col,
     pub row: Row
 }
 
-/*
- * Describes a button event that occurred.
- * At the moment only button press
- * is implemented.
- */
- #[derive(Debug)]
+/// Describes a button event that occurred. At the moment only button press
+/// is implemented.
+///
+/// Since the buttons on the trellis can be pressed simultaneouly a list
+/// of buttons is supplied. The order in this list is undefined.
+#[derive(Debug)]
 pub struct ButtonEvent {
     pub buttons_pressed: Vec<LedButton>
 }
 
+
 impl ButtonEvent {
+    /// Returns a empty event (nothing happend).
     pub fn empty() -> ButtonEvent {
         return ButtonEvent{buttons_pressed: vec![]}
     }
 }
 
+/// The callback type for the button_evt_loop (see the Trellis struct for details).
 pub type EventLoopHandler = Box<FnMut(&mut Trellis, ButtonEvent) -> bool>;
 
 // Helper methods
