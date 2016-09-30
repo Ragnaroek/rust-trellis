@@ -1,8 +1,18 @@
 use super::devices::I2CMasterDevice;
 use std::io::Result;
 
+/// Callback for writes to device.
+/// The first argument is a counter that starts
+/// with 0 and is increment each time the callback
+/// function is called. The counter can be used
+/// to differentiate calls to the function
+/// in tests.
 pub type WriteCb = fn(i32, u8, &[u8]) -> ();
 
+/// A I2CMasterDevice implementation that exists solely for testing.
+/// The MockDevice delegates writes and reades to the supplied
+/// callback functions/data that are used in tests for checking the
+/// correct device communication.
 pub struct MockDevice {
     write_block_counter: i32,
     write_block_cb: WriteCb,

@@ -7,19 +7,19 @@ use std::io::Result;
 use std::io;
 use std::result;
 
-/*
- * Host devices that are connected to the Trellis.
- * Trellis is the slave.
- * We only need a small subset of I2C to talk to
- * thre Trellis.
- */
+/// Host devices that are connected to the Trellis. The Trellis is the slave.
+/// This trate is a small abstraction over the full I2C
+/// since we need only a very small subset.
+/// This trate exists also to make the I2C communciation testable (see also MockDevice
+/// that implements this trait).
 pub trait I2CMasterDevice {
     fn write_block(&mut self, register: u8, values: &[u8]) -> Result<()>;
     fn read_block(&mut self, register: u8, len: u8) -> Result<Vec<u8>>;
 }
 
 
-// Raspberry Pi B+ Device impl
+/// A concrete device for using the Trellis
+/// with a Raspberry Pi 2 B+.
 pub struct RaspberryPiBPlus {
     i2c_device : LinuxI2CDevice,
 }

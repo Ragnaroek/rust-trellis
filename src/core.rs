@@ -137,6 +137,7 @@ fn button_event(old: LedVec, new: LedVec) -> ButtonEvent {
 
 // Trellis impl
 
+/// The Trellis device abstraction.
 pub struct Trellis {
     display_buffer: LedVec,
     button_state: LedVec,
@@ -145,12 +146,20 @@ pub struct Trellis {
 
 impl Trellis {
 
+    /// Construct a new Trellis device with a particular
+    /// I2C-Device. See the devices module for a list
+    /// of concrete devices that can be used.
+    /// Note: object has to be initialised with a call to
+    /// init before you can control the LEDs and
+    /// buttons.
     pub fn new(dev: Box<I2CMasterDevice>) -> Trellis {
         return Trellis { display_buffer: [false; NUM_LEDS],
                          button_state: [false; NUM_LEDS],
                          device: dev};
     }
 
+    /// Initialise the trellis connection. Has to be called
+    /// exactly once for a trellis.
     pub fn init(&mut self) {
         let empty_array:[u8;0] = [];
         self.device.write_block(0x21, &empty_array).unwrap();
@@ -162,18 +171,26 @@ impl Trellis {
         self.device.write_block(0xA1, &empty_array).unwrap();
     }
 
+    /// Turn a LED on the specified position to on.
     pub fn set_led(&mut self, col:Col, row: Row) {
         self.display_buffer[led_index(col, row)] = true;
     }
 
+    /// Turn a LED on the specified position to off.
     pub fn clear_led(&mut self, col:Col, row:Row) {
         self.display_buffer[led_index(col, row)] = false;
     }
 
+    /// Returns the LED state (on or off) from the internal display buffer.
+    /// The state may not reflect the actual state on the hardware if
+    /// the display buffer was not written.
     pub fn is_led_set(&mut self, col:Col, row: Row) -> bool {
         return self.display_buffer[led_index(col, row)];
     }
 
+    /// Writes the internal display buffer to the hardware.
+    /// You must call this function manually after updating
+    /// the LED states of the trellis.
     pub fn write_display(&mut self) {
         let mut data:[u16; 8] = [0; 8];
         for l in 0..NUM_LEDS {
@@ -194,9 +211,9 @@ impl Trellis {
         self.device.write_block(0x0, &w).unwrap();
     }
 
-    /* Start the button read event loop. This function does not terminate and can
-     * only be stopped by the supplied event handler.
-     */
+    /// Start the button read event loop. This function does not terminate and can
+    /// only be stopped by the supplied event handler returning false.
+    /// The polling interval for reading the button is currently fixed to 30ms.
     pub fn button_evt_loop(&mut self, mut hnd: EventLoopHandler) {
         loop {
             let new_button_state = to_button_state(self.device.read_block(0x40, 6).unwrap());
