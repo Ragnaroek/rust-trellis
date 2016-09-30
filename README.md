@@ -4,9 +4,13 @@
 # rust-trellis
 a rust interface for the adafruit trellis
 
-Addressing layout
+Documentation: http://ragnaroek.github.io/rust-trellis/trellis/
 
+
+Addressing layout
+```
 [(A,R0),....]
-[...........]----- 
+[...........]-----
 [...........]----- (cables)
 [.....(D,R3)]  
+```
