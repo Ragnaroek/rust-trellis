@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Trellis` struct in crate `trellis`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Trellis">
+
+    <title>trellis::core::Trellis - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>trellis</a>::<wbr><a href='index.html'>core</a></p><script>window.sidebarCurrent = {name: 'Trellis', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>trellis</a>::<wbr><a href='index.html'>core</a>::<wbr><a class='struct' href=''>Trellis</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-132' class='srclink' href='../../src/trellis/src/core.rs.html#141-145' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Trellis {
+    // some fields omitted
+}</pre><div class='docblock'><p>The Trellis device abstraction.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><span class='in-band'><code>impl <a class='struct' href='../../trellis/core/struct.Trellis.html' title='trellis::core::Trellis'>Trellis</a></code></span><span class='out-of-band'><div class='ghost'></div><a id='src-136' class='srclink' href='../../src/trellis/src/core.rs.html#147-231' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(dev: <a class='struct' href='https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html' title='alloc::boxed::Box'>Box</a>&lt;<a class='trait' href='../../trellis/devices/trait.I2CMasterDevice.html' title='trellis::devices::I2CMasterDevice'>I2CMasterDevice</a>&gt;) -&gt; <a class='struct' href='../../trellis/core/struct.Trellis.html' title='trellis::core::Trellis'>Trellis</a></code></h4>
+<div class='docblock'><p>Construct a new Trellis device with a particular
+I2C-Device. See the devices module for a list
+of concrete devices that can be used.
+Note: object has to be initialised with a call to
+init before you can control the LEDs and
+buttons.</p>
+</div><h4 id='method.init' class='method'><code>fn <a href='#method.init' class='fnname'>init</a>(&amp;mut self)</code></h4>
+<div class='docblock'><p>Initialise the trellis connection. Has to be called
+exactly once for a trellis.</p>
+</div><h4 id='method.set_led' class='method'><code>fn <a href='#method.set_led' class='fnname'>set_led</a>(&amp;mut self, col: <a class='enum' href='../../trellis/core/enum.Col.html' title='trellis::core::Col'>Col</a>, row: <a class='enum' href='../../trellis/core/enum.Row.html' title='trellis::core::Row'>Row</a>)</code></h4>
+<div class='docblock'><p>Turn a LED on the specified position to on.</p>
+</div><h4 id='method.clear_led' class='method'><code>fn <a href='#method.clear_led' class='fnname'>clear_led</a>(&amp;mut self, col: <a class='enum' href='../../trellis/core/enum.Col.html' title='trellis::core::Col'>Col</a>, row: <a class='enum' href='../../trellis/core/enum.Row.html' title='trellis::core::Row'>Row</a>)</code></h4>
+<div class='docblock'><p>Turn a LED on the specified position to off.</p>
+</div><h4 id='method.is_led_set' class='method'><code>fn <a href='#method.is_led_set' class='fnname'>is_led_set</a>(&amp;mut self, col: <a class='enum' href='../../trellis/core/enum.Col.html' title='trellis::core::Col'>Col</a>, row: <a class='enum' href='../../trellis/core/enum.Row.html' title='trellis::core::Row'>Row</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<div class='docblock'><p>Returns the LED state (on or off) from the internal display buffer.
+The state may not reflect the actual state on the hardware if
+the display buffer was not written.</p>
+</div><h4 id='method.write_display' class='method'><code>fn <a href='#method.write_display' class='fnname'>write_display</a>(&amp;mut self)</code></h4>
+<div class='docblock'><p>Writes the internal display buffer to the hardware.
+You must call this function manually after updating
+the LED states of the trellis.</p>
+</div><h4 id='method.button_evt_loop' class='method'><code>fn <a href='#method.button_evt_loop' class='fnname'>button_evt_loop</a>(&amp;mut self, hnd: <a class='type' href='../../trellis/core/type.EventLoopHandler.html' title='trellis::core::EventLoopHandler'>EventLoopHandler</a>)</code></h4>
+<div class='docblock'><p>Start the button read event loop. This function does not terminate and can
+only be stopped by the supplied event handler returning false.
+The polling interval for reading the button is currently fixed to 30ms.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "trellis";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>
