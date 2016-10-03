@@ -8,7 +8,7 @@ This is a pure Rust port of the [Adafruit Trellis Python](https://github.com/tdi
 
 ## Documentation
 
-The documentation for the current version can be found here: [Rust Trellis Documenation](http://ragnaroek.github.io/rust-trellis/trellis/)
+The documentation for the current version can be found here: [Rust Trellis Documentation](http://ragnaroek.github.io/rust-trellis/trellis/)
 
 ## Usage
 
