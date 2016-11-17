@@ -39,7 +39,6 @@ impl I2CMasterDevice for RaspberryPiBPlus {
 
     fn read_block(&mut self, register: u8, len: u8) -> Result<Vec<u8>> {
         let result = self.i2c_device.smbus_read_i2c_block_data(register, len);
-        println!("raw data {:?}", result);
         return convert_to_io_error(result);
     }
 }
